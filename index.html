@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>吉爸爸富金庫計算機</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FFFBEE;
+    --cream-2: #FFF6D6;
+    --cream-3: #FFF0B8;
+    --gold: #C8960A;
+    --gold-mid: #E8AE10;
+    --gold-bright: #F5C842;
+    --gold-pale: #FDE98A;
+    --brown: #7A5500;
+    --brown-light: #A07820;
+    --text: #3A2800;
+    --text-mid: #6B4A00;
+    --text-muted: #9B7830;
+    --border: rgba(200,150,10,0.2);
+    --border-strong: rgba(200,150,10,0.4);
+    --shadow-gold: rgba(245,200,66,0.25);
+    --green-line: #06C755;
+    --red: #C0392B;
+  }
+ 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+ 
+  /* Layered background glow */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 0%, rgba(248,210,60,0.22) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(248,180,30,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 20% 70%, rgba(248,230,100,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+ 
+  /* Subtle grid texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,150,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,150,10,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+ 
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+ 
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 2.5rem 0 2.5rem;
+    animation: fadeDown 0.7s cubic-bezier(0.22,1,0.36,1) both;
+  }
+ 
+  .header-coin {
+    display: inline-block;
+    font-size: 56px;
+    margin-bottom: 0.6rem;
+    animation: floatCoin 4s ease-in-out infinite;
+    filter: drop-shadow(0 6px 18px rgba(200,150,10,0.35));
+  }
+ 
+  @keyframes floatCoin {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%       { transform: translateY(-8px) rotate(3deg); }
+  }
+ 
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-shadow:
+      0 2px 0 rgba(200,150,10,0.15),
+      0 0 40px rgba(245,200,66,0.3);
+  }
+ 
+  .header-sub {
+    margin-top: 0.5rem;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+ 
+  /* Decorative divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0.5rem auto 0;
+    width: fit-content;
+  }
+  .divider-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-bright));
+  }
+  .divider-line.rev {
+    background: linear-gradient(90deg, var(--gold-bright), transparent);
+  }
+  .divider-diamond {
+    width: 6px;
+    height: 6px;
+    background: var(--gold-bright);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px var(--gold-bright);
+  }
+ 
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+ 
+  /* ── CARDS ── */
+  .card {
+    background: rgba(255,251,238,0.85);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.4rem 1.5rem;
+    margin-bottom: 0.85rem;
+    backdrop-filter: blur(8px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 4px 20px rgba(200,150,10,0.07);
+    animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  }
+ 
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.16s; }
+  .card:nth-child(4) { animation-delay: 0.24s; }
+ 
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+ 
+  .card-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+  }
+ 
+  /* ── TOGGLE BUTTONS ── */
+  .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+ 
+  .toggle-btn {
+    padding: 11px 8px;
+    border-radius: 11px;
+    border: 1.5px solid var(--border);
+    background: var(--cream-2);
+    color: var(--text-muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+ 
+  .toggle-btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text-mid);
+    background: var(--cream-3);
+  }
+ 
+  .toggle-btn.active-game {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, #FFF8D0, #FFEEA0);
+    color: var(--brown);
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(200,150,10,0.2), 0 0 0 3px rgba(200,150,10,0.08);
+  }
+ 
+  .toggle-btn.active-buy {
+    border-color: #C07010;
+    background: linear-gradient(135deg, #FFF3D0, #FFE0A0);
+    color: #7A4800;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(192,112,16,0.2), 0 0 0 3px rgba(192,112,16,0.08);
+  }
+ 
+  .toggle-btn.active-sell {
+    border-color: #1870B0;
+    background: linear-gradient(135deg, #EEF6FF, #D4EAFF);
+    color: #0A4880;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(24,112,176,0.15), 0 0 0 3px rgba(24,112,176,0.06);
+  }
+ 
+  /* ── INPUT ── */
+  .input-wrap { position: relative; }
+ 
+  .amount-input {
+    width: 100%;
+    padding: 14px 64px 14px 16px;
+    background: var(--cream-2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 19px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s;
+  }
+ 
+  .amount-input:focus {
+    border-color: var(--gold-mid);
+    background: #FFFCF0;
+    box-shadow: 0 0 0 4px rgba(200,150,10,0.1);
+  }
+ 
+  .amount-input::placeholder { color: var(--text-muted); font-size: 14px; }
+ 
+  .input-unit {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+ 
+  /* Quick amounts */
+  .quick-amounts {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+ 
+  .quick-btn {
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--cream-2);
+    color: var(--text-muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+ 
+  .quick-btn:hover {
+    border-color: var(--gold-mid);
+    color: var(--brown);
+    background: var(--gold-pale);
+  }
+ 
+  /* Hint badge */
+  .hint-badge {
+    display: none;
+    background: rgba(24,112,176,0.07);
+    border: 1px solid rgba(24,112,176,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #1870B0;
+    margin-bottom: 0.75rem;
+  }
+ 
+  /* Error */
+  .error-box {
+    display: none;
+    background: rgba(192,57,43,0.07);
+    border: 1px solid rgba(192,57,43,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 0.75rem;
+    font-weight: 500;
+  }
+ 
+  /* ── RESULT CARD ── */
+  .result-card {
+    display: none;
+    background: linear-gradient(160deg, #FFFDF0 0%, #FFF8D0 100%);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 0.85rem;
+    box-shadow:
+      0 0 0 4px rgba(245,200,66,0.08),
+      0 8px 30px rgba(200,150,10,0.12),
+      0 1px 0 rgba(255,255,255,0.9) inset;
+    animation: shimmerIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+ 
+  @keyframes shimmerIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+ 
+  .result-header {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+ 
+  .result-header::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background: var(--gold-bright);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--gold-bright);
+  }
+ 
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+  }
+ 
+  .result-row + .result-row {
+    border-top: 1px solid rgba(200,150,10,0.1);
+  }
+ 
+  .result-key {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+ 
+  .result-val {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+ 
+  .result-val.coins-val {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(200,150,10,0.3);
+  }
+ 
+  .result-val.buy-color  { color: #B06000; }
+  .result-val.sell-color { color: #1870B0; }
+ 
+  .result-note {
+    margin-top: 1rem;
+    padding: 10px 14px;
+    background: rgba(200,150,10,0.06);
+    border-left: 3px solid var(--gold-bright);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+ 
+  /* ── COPY ── */
+  .copy-wrap { display: none; margin-bottom: 0.85rem; }
+ 
+  .copy-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--cream-2);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans TC', monospace;
+    font-size: 12px;
+    line-height: 1.85;
+    resize: none;
+    height: 130px;
+    outline: none;
+  }
+ 
+  .copy-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 13px;
+    border-radius: 11px;
+    border: 1.5px solid var(--border-strong);
+    background: linear-gradient(135deg, #FFF8D0, #FFE880);
+    color: var(--brown);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(200,150,10,0.12);
+  }
+ 
+  .copy-btn:hover {
+    background: linear-gradient(135deg, #FFE880, #FFD840);
+    box-shadow: 0 4px 18px rgba(200,150,10,0.25);
+    transform: translateY(-1px);
+  }
+ 
+  .copy-btn:active { transform: translateY(0); }
+ 
+  /* ── RATES ── */
+  .rates-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 0.85rem;
+    animation: fadeUp 0.55s ease 0.32s both;
+  }
+ 
+  .rate-box {
+    background: rgba(255,251,238,0.85);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 13px 15px;
+    box-shadow: 0 2px 10px rgba(200,150,10,0.05);
+  }
+ 
+  .rate-box p:first-child {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+ 
+  .rate-box p:last-child {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+ 
+  /* ── LINE BUTTON ── */
+  .line-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    background: var(--green-line);
+    color: white;
+    text-decoration: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(6,199,85,0.28), 0 1px 0 rgba(255,255,255,0.25) inset;
+    animation: fadeUp 0.55s ease 0.4s both;
+  }
+ 
+  .line-btn:hover {
+    background: #05b04c;
+    box-shadow: 0 6px 28px rgba(6,199,85,0.4);
+    transform: translateY(-2px);
+  }
+ 
+  .line-btn:active { transform: translateY(0); }
+ 
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 2.5rem;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    opacity: 0.55;
+  }
+ 
+  /* ── FLOATING SPARKLES ── */
+  .sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    animation: sparkleFade var(--dur) ease-in-out infinite var(--delay);
+    opacity: 0;
+  }
+ 
+  @keyframes sparkleFade {
+    0%   { opacity: 0; transform: scale(0.5) translateY(0); }
+    30%  { opacity: 0.5; }
+    100% { opacity: 0; transform: scale(1.2) translateY(-60px); }
+  }
+</style>
+</head>
+<body>
+ 
+<!-- Floating sparkles -->
+<div class="sparkle" style="width:6px;height:6px;left:12%;top:30%;--dur:5s;--delay:0s;box-shadow:0 0 8px var(--gold-bright);"></div>
+<div class="sparkle" style="width:4px;height:4px;left:85%;top:20%;--dur:7s;--delay:1.5s;box-shadow:0 0 6px var(--gold-bright);"></div>
+<div class="sparkle" style="width:5px;height:5px;left:70%;top:60%;--dur:6s;--delay:3s;box-shadow:0 0 7px var(--gold-bright);"></div>
+<div class="sparkle" style="width:3px;height:3px;left:25%;top:75%;--dur:8s;--delay:0.8s;box-shadow:0 0 5px var(--gold-bright);"></div>
+<div class="sparkle" style="width:5px;height:5px;left:55%;top:15%;--dur:6.5s;--delay:2.2s;box-shadow:0 0 7px var(--gold-bright);"></div>
+ 
+<div class="container">
+ 
+  <!-- Header -->
+  <div class="header">
+    <span class="header-coin">💰</span>
+    <h1>吉爸爸富金庫</h1>
+    <p class="header-sub">📣 買分賣分就找吉爸爸 📣</p>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line rev"></div>
+    </div>
+  </div>
+ 
+  <!-- Game select -->
+  <div class="card">
+    <p class="card-label">選擇遊戲</p>
+    <div class="toggle-group">
+      <button class="toggle-btn active-game" id="gbtn-hf" onclick="setGame('hf')">⚔️ 恆富 Online</button>
+      <button class="toggle-btn" id="gbtn-dg" onclick="setGame('dg')">🏰 地下城 Online</button>
+    </div>
+  </div>
+ 
+  <!-- Mode select -->
+  <div class="card">
+    <p class="card-label">交易類型</p>
+    <div class="toggle-group">
+      <button class="toggle-btn active-buy" id="mbtn-buy" onclick="setMode('buy')">🚗 買幣（儲值）</button>
+      <button class="toggle-btn" id="mbtn-sell" onclick="setMode('sell')">🚀 回幣（換現金）</button>
+    </div>
+  </div>
+ 
+  <!-- Amount -->
+  <div class="card">
+    <p class="card-label">台幣金額</p>
+    <div id="hint-badge" class="hint-badge">回幣規則：最低 1,000 TWD · 當日上限 50,000 TWD</div>
+    <div class="input-wrap">
+      <input type="number" id="amount" class="amount-input" placeholder="輸入金額…" min="500" step="500" oninput="calculate()" />
+      <span class="input-unit">TWD</span>
+    </div>
+    <div class="quick-amounts">
+      <button class="quick-btn" onclick="setAmount(500)">500</button>
+      <button class="quick-btn" onclick="setAmount(1000)">1,000</button>
+      <button class="quick-btn" onclick="setAmount(2000)">2,000</button>
+      <button class="quick-btn" onclick="setAmount(5000)">5,000</button>
+      <button class="quick-btn" onclick="setAmount(10000)">10,000</button>
+      <button class="quick-btn" onclick="setAmount(50000)">50,000</button>
+    </div>
+    <div id="error-box" class="error-box"></div>
+  </div>
+ 
+  <!-- Result -->
+  <div id="result-card" class="result-card">
+    <p id="r-header" class="result-header"></p>
+    <div class="result-row">
+      <span class="result-key">台幣</span>
+      <span id="r-twd" class="result-val"></span>
+    </div>
+    <div class="result-row">
+      <span class="result-key">遊戲幣</span>
+      <span id="r-coins" class="result-val coins-val"></span>
+    </div>
+    <div id="r-gift-row" class="result-row" style="display:none;">
+      <span id="r-gift-label" class="result-key"></span>
+      <span id="r-gift" class="result-val"></span>
+    </div>
+    <div class="result-note" id="r-note"></div>
+  </div>
+ 
+  <!-- Copy -->
+  <div id="copy-wrap" class="copy-wrap">
+    <textarea id="copy-text" class="copy-textarea" readonly></textarea>
+    <button id="copy-btn" class="copy-btn" onclick="copyText()">複製交易資訊</button>
+  </div>
+ 
+  <!-- Rates -->
+  <div class="rates-grid">
+    <div class="rate-box">
+      <p>🚗 買幣匯率</p>
+      <p>1:130 · 最低 500 TWD</p>
+    </div>
+    <div class="rate-box">
+      <p>🚀 回幣匯率</p>
+      <p>1:144 · 1,000–50,000 TWD</p>
+    </div>
+  </div>
+ 
+  <!-- LINE -->
+  <a href="https://lin.ee/smLUTJW" class="line-btn" target="_blank" rel="noopener">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+    加入吉爸爸官方 LINE
+  </a>
+ 
+  <div class="footer">© 吉爸爸富金庫 · 幣商報價助手</div>
+ 
+</div>
+ 
+<script>
+let game = 'hf';
+let mode = 'buy';
+ 
+const NOTE_BUY  = '備註：請確認數量正確後轉帳，請聯繫吉爸客服LINE ID：@g881688。';
+const NOTE_SELL = '備註：請確認數量正確後贈禮，請聯繫吉爸客服LINE ID：@g881688。';
+ 
+function setGame(g) {
+  game = g;
+  document.getElementById('gbtn-hf').className = 'toggle-btn' + (g==='hf' ? ' active-game' : '');
+  document.getElementById('gbtn-dg').className = 'toggle-btn' + (g==='dg' ? ' active-game' : '');
+  calculate();
+}
+ 
+function setMode(m) {
+  mode = m;
+  const isBuy = m === 'buy';
+  document.getElementById('mbtn-buy').className  = 'toggle-btn' + (isBuy  ? ' active-buy'  : '');
+  document.getElementById('mbtn-sell').className = 'toggle-btn' + (!isBuy ? ' active-sell' : '');
+  document.getElementById('hint-badge').style.display = isBuy ? 'none' : 'block';
+  calculate();
+}
+ 
+function setAmount(v) {
+  document.getElementById('amount').value = v;
+  calculate();
+}
+ 
+function showError(msg) {
+  const eb = document.getElementById('error-box');
+  eb.textContent = msg;
+  eb.style.display = 'block';
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('copy-wrap').style.display   = 'none';
+}
+ 
+function hideError() {
+  document.getElementById('error-box').style.display = 'none';
+}
+ 
+function calculate() {
+  const raw = parseFloat(document.getElementById('amount').value);
+  hideError();
+  if (!raw || raw <= 0) {
+    document.getElementById('result-card').style.display = 'none';
+    document.getElementById('copy-wrap').style.display   = 'none';
+    return;
+  }
+ 
+  if (mode === 'buy' && raw < 500) {
+    showError('買幣最低金額為 500 TWD，請調整金額。'); return;
+  }
+  if (mode === 'sell') {
+    if (raw < 1000)       { showError('回幣最低金額為 1,000 TWD，請調整金額。'); return; }
+    if (raw > 50000)      { showError('回幣當日上限為 50,000 TWD，超過上限無法執行。'); return; }
+    if (raw % 1000 !== 0) { showError('回幣金額須為 1,000 的倍數，請調整金額。'); return; }
+  }
+ 
+  const isBuy = mode === 'buy';
+  const coins = raw * (isBuy ? 130 : 144);
+  const units = raw / 1000;
+  const gameName  = game === 'hf' ? '恆富 Online' : '地下城 Online';
+  const modeLabel = isBuy ? '買幣' : '回幣';
+  const note      = isBuy ? NOTE_BUY : NOTE_SELL;
+ 
+  document.getElementById('r-header').textContent = `【${gameName}】${modeLabel}`;
+  document.getElementById('r-twd').textContent    = raw.toLocaleString() + ' TWD';
+  document.getElementById('r-coins').textContent  = coins.toLocaleString() + ' 遊戲幣';
+  document.getElementById('r-note').textContent   = note;
+ 
+  let copyStr = `【${gameName}】${modeLabel}\n- 台幣：${raw.toLocaleString()} TWD\n- 遊戲幣：${coins.toLocaleString()}`;
+ 
+  const giftRow = document.getElementById('r-gift-row');
+  if (game === 'dg') {
+    const itemCount = units * 10;
+    const item  = isBuy ? '🚗 跑車' : '🚀 火箭';
+    const label = isBuy ? '贈送（跑車）' : '需求（火箭）';
+    giftRow.style.display = 'flex';
+    document.getElementById('r-gift-label').textContent = label;
+    const giftEl = document.getElementById('r-gift');
+    giftEl.textContent = item + ' ' + itemCount.toLocaleString() + ' 個';
+    giftEl.className = 'result-val ' + (isBuy ? 'buy-color' : 'sell-color');
+    copyStr += `\n- ${label}：${item} ${itemCount.toLocaleString()} 個`;
+  } else {
+    giftRow.style.display = 'none';
+  }
+ 
+  copyStr += `\n- ${note}`;
+  document.getElementById('copy-text').value = copyStr;
+ 
+  const rc = document.getElementById('result-card');
+  rc.style.display = 'none';
+  void rc.offsetWidth; // re-trigger animation
+  rc.style.display = 'block';
+  document.getElementById('copy-wrap').style.display = 'block';
+}
+ 
+function copyText() {
+  const ta  = document.getElementById('copy-text');
+  ta.select();
+  document.execCommand('copy');
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = '✓ 已複製！';
+  setTimeout(() => { btn.textContent = '複製交易資訊'; }, 2000);
+}
+</script>
+</body>
+</html>
+ 
